@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="de" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURELIA Erlebnisse | Außergewöhnliche Momente & Abenteuer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#090d16',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                            700: '#b45309',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'serif'],
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Sprechblasen-Pfeil Styling */
+        .speech-bubble {
+            position: relative;
+        }
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 36px;
+            border-width: 12px 12px 0 12px;
+            border-style: solid;
+            border-color: #ffffff transparent transparent transparent;
+            display: block;
+            width: 0;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.05));
+        }
+
+        /* Verstecken der Scrollleiste in der Galerie für elegantes Aussehen */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Sanfte Animationen für Sidebar & Modals */
+        .sidebar-transition {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased overflow-x-hidden min-h-screen flex flex-col">
+
+    <!-- OVERLAY DAFÜR, WENN SIDEBAR AUF MOBILGERÄTEN OFFEN IST -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 hidden transition-opacity duration-300" onclick="toggleSidebar()"></div>
+
+    <!-- LINKES AUSKLAPPBARES MENÜ (SIDEBAR) -->
+    <aside id="sidebar" class="fixed top-0 left-0 w-80 h-full bg-navy-900 text-white z-50 transform -translate-x-full sidebar-transition shadow-2xl flex flex-col justify-between border-r border-slate-800">
+        <div class="p-6">
+            <!-- Header der Sidebar mit Schließen-Button -->
+            <div class="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-gold-600 to-gold-400 flex items-center justify-center text-navy-950 font-serif font-bold text-xl shadow-lg">
+                        A
+                    </div>
+                    <div>
+                        <span class="font-serif font-bold text-lg text-white tracking-wider block">AURELIA</span>
+                        <span class="text-xs text-gold-400 tracking-widest uppercase block -mt-1">Erlebnisse</span>
+                    </div>
+                </div>
+                <button onclick="toggleSidebar()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800 transition" aria-label="Menü schließen">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- LIVE-SUCHFELD (Exakt nach Anforderung) -->
+            <div class="mb-8">
+                <label for="sidebarSearch" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+                    <i class="fa-solid fa-magnifying-glass text-gold-400 mr-1.5"></i> Suche
+                </label>
+                <div class="relative">
+                    <input type="text" 
+                           id="sidebarSearch" 
+                           placeholder="Erlebnis suchen" 
+                           oninput="filterExperiences()" 
+                           class="w-full bg-slate-800/80 text-white placeholder-slate-400 text-sm rounded-xl pl-10 pr-4 py-3 border border-slate-700/60 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition shadow-inner">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                    <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-3 text-slate-400 hover:text-white text-xs bg-slate-700 rounded-full w-5 h-5 flex items-center justify-center">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <p id="searchCount" class="text-xs text-slate-400 mt-2 hidden">
+                    <span id="matchCount">0</span> Erlebnis(se) gefunden
+                </p>
+            </div>
+
+            <!-- MENÜPUNKTE (Exakt nach Anforderung) -->
+            <nav class="space-y-2">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 px-3">Navigation</p>
+                <a href="#galerie" onclick="closeSidebarOnMobile()" class="flex items-center space-x-3 px-4 py-3 text-slate-200 hover:text-white hover:bg-slate-800/70 rounded-xl transition font-medium group">
+                    <i class="fa-solid fa-compass text-gold-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Erlebnisse</span>
+                </a>
+                <a href="#preise" onclick="closeSidebarOnMobile()" class="flex items-center space-x-3 px-4 py-3 text-slate-200 hover:text-white hover:bg-slate-800/70 rounded-xl transition font-medium group">
+                    <i class="fa-solid fa-tags text-gold-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Preise</span>
+                </a>
+                <a href="#buchung" onclick="closeSidebarOnMobile()" class="flex items-center space-x-3 px-4 py-3 text-slate-200 hover:text-white hover:bg-slate-800/70 rounded-xl transition font-medium group">
+                    <i class="fa-solid fa-calendar-check text-gold-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Jetzt buchen</span>
+                </a>
+                <a href="#kontakt" onclick="closeSidebarOnMobile()" class="flex items-center space-x-3 px-4 py-3 text-slate-200 hover:text-white hover:bg-slate-800/70 rounded-xl transition font-medium group">
+                    <i class="fa-solid fa-envelope text-gold-400 group-hover:scale-110 transition-transform"></i>
+                    <span>Kontakt</span>
+                </a>
+            </nav>
+        </div>
+
+        <!-- Sidebar Fußbereich -->
+        <div class="p-6 border-t border-slate-800/80 bg-slate-950/40">
+            <div class="flex items-center space-x-3 text-xs text-slate-400 mb-2">
+                <i class="fa-solid fa-shield-halved text-gold-500"></i>
+                <span>Geprüfte Qualität & Sicherheit</span>
+            </div>
+            <p class="text-[11px] text-slate-500">© 2026 AURELIA Erlebnisse GmbH</p>
+        </div>
+    </aside>
+
+    <!-- HEADER & STICKY NAVIGATION BAR -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm transition-all">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Sidebar Toggle Button & Logo -->
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleSidebar()" class="flex items-center space-x-2.5 bg-navy-900 text-white px-4 py-2.5 rounded-xl hover:bg-navy-800 transition shadow-md group focus:outline-none focus:ring-2 focus:ring-gold-500" aria-label="Menü öffnen">
+                    <i class="fa-solid fa-bars text-gold-400 group-hover:rotate-12 transition-transform"></i>
+                    <span class="font-semibold text-sm hidden sm:inline">Menü</span>
+                </button>
+
+                <a href="#" class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-navy-900 to-slate-800 flex items-center justify-center text-gold-400 font-serif font-bold text-xl shadow-md border border-slate-700">
+                        A
+                    </div>
+                    <div>
+                        <span class="font-serif font-bold text-xl text-navy-900 tracking-tight block">AURELIA</span>
+                        <span class="text-[10px] text-gold-600 font-bold tracking-widest uppercase block -mt-1">Erlebnisse</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Schnellzugriffs-Buttons im Header -->
+            <div class="flex items-center space-x-3 sm:space-x-4">
+                <a href="#buchung" class="hidden md:inline-flex items-center space-x-2 text-slate-700 hover:text-navy-900 font-medium text-sm px-3 py-2 transition">
+                    <i class="fa-solid fa-calendar text-gold-600"></i>
+                    <span>Verfügbarkeit</span>
+                </a>
+                <a href="#buchung" class="bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-navy-950 font-bold text-sm px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition transform hover:-translate-y-0.5 active:translate-y-0">
+                    Jetzt buchen
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <!-- 1. HERO BEREICH (Header / Einführungstext) -->
+        <section class="relative bg-gradient-to-b from-navy-950 via-navy-900 to-slate-900 text-white pt-16 pb-24 overflow-hidden">
+            <!-- Dekorative Hintergrund-Elemente -->
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px]"></div>
+            <div class="absolute -top-24 -right-24 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute bottom-0 left-0 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center max-w-3xl mx-auto">
+                    <!-- Badge -->
+                    <div class="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-gold-400 text-xs font-semibold uppercase tracking-widest mb-6 shadow-inner">
+                        <i class="fa-solid fa-crown text-xs"></i>
+                        <span>Exklusive Momente & Abenteuer</span>
+                    </div>
+
+                    <!-- Hauptüberschrift -->
+                    <h1 class="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight mb-6">
+                        Erlebnisse, die Ihre <span class="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-gold-500">Träume</span> wahr machen.
+                    </h1>
+
+                    <!-- Vertrauensbildender Einführungstext -->
+                    <p class="text-slate-300 text-base sm:text-lg leading-relaxed mb-10 font-normal">
+                        Willkommen bei <strong class="text-white font-semibold">AURELIA Erlebnisse</strong>. Wir machen außergewöhnliche Augenblicke zu unvergesslichen Erinnerungen. Von spektakulären Höhenflügen über adrenalingeladene Abenteuer bis hin zu exklusiven Wohlfühlmomenten – wir garantieren Ihnen höchste Sicherheitsstandards, zertifizierte Premium-Partner und eine persönliche Betreuung ab der ersten Sekunde.
+                    </p>
+
+                    <!-- Call to Action Buttons -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+                        <a href="#galerie" class="w-full sm:w-auto bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-navy-950 font-bold px-8 py-4 rounded-xl shadow-xl transition transform hover:-translate-y-0.5 flex items-center justify-center space-x-2">
+                            <span>Erlebnisse entdecken</span>
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </a>
+                        <a href="#bewertungen" class="w-full sm:w-auto bg-slate-800/80 hover:bg-slate-700/80 text-white font-semibold px-8 py-4 rounded-xl border border-slate-700 transition flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-star text-gold-400"></i>
+                            <span>Bewertungen ansehen</span>
+                        </a>
+                    </div>
+
+                    <!-- Vertrauens-Badges -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 border-t border-slate-800/80 pt-8 text-left">
+                        <div class="flex items-center space-x-4 bg-slate-800/40 p-4 rounded-2xl border border-slate-800">
+                            <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-shield-check"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-sm text-white">100% Geprüft</h2>
+                                <p class="text-xs text-slate-400">Streng selektierte Partner</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 bg-slate-800/40 p-4 rounded-2xl border border-slate-800">
+                            <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-sm text-white">Flexible Umbuchung</h2>
+                                <p class="text-xs text-slate-400">Sorgenfrei planen & anpassen</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4 bg-slate-800/40 p-4 rounded-2xl border border-slate-800">
+                            <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-400 flex items-center justify-center text-xl shrink-0">
+                                <i class="fa-solid fa-user-shield"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-bold text-sm text-white">Persönlicher Service</h2>
+                                <p class="text-xs text-slate-400">Individuelle Betreuung</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. ERLEBNIS-GALERIE (Horizontaler Slider) -->
+        <section id="galerie" class="py-20 bg-slate-100/70 border-b border-slate-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Sektions-Kopf mit Navigation für Desktop -->
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-10">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 text-gold-600 text-xs font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-gem"></i>
+                            <span>Unser Portfolio</span>
+                        </div>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-navy-900">Ausgewählte Erlebnisse</h2>
+                        <p class="text-slate-600 mt-2 text-sm sm:text-base">Wählen Sie aus unseren exklusiven Kategorien für pure Gänsehaut-Momente.</p>
+                    </div>
+
+                    <!-- Scroll-Steuerung & Filter-Info -->
+                    <div class="flex items-center space-x-3 mt-6 md:mt-0">
+                        <button onclick="scrollGallery(-320)" aria-label="Zurück scrollen" class="w-11 h-11 rounded-xl bg-white shadow-md border border-slate-200 text-slate-700 hover:bg-navy-900 hover:text-gold-400 transition flex items-center justify-center focus:outline-none">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button onclick="scrollGallery(320)" aria-label="Weiter scrollen" class="w-11 h-11 rounded-xl bg-white shadow-md border border-slate-200 text-slate-700 hover:bg-navy-900 hover:text-gold-400 transition flex items-center justify-center focus:outline-none">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Aktiver Filter Hinweis (wird per JS dynamisch gesteuert) -->
+                <div id="activeFilterBadge" class="hidden mb-6 items-center justify-between bg-gold-50 border border-gold-200 p-3 rounded-xl">
+                    <span class="text-sm text-gold-900">
+                        Filter aktiv: <strong id="filterQueryText" class="font-semibold"></strong>
+                    </span>
+                    <button onclick="clearSearch()" class="text-xs text-gold-700 hover:text-gold-900 font-bold underline">
+                        Filter aufheben
+                    </button>
+                </div>
+
+                <!-- HORIZONTALER SLIDER KONTROLLER -->
+                <div id="galleryContainer" class="flex space-x-6 overflow-x-auto no-scrollbar scroll-smooth pb-8 pt-2 px-1 snap-x snap-mandatory">
+                    
+                    <!-- Karte 1: Heißluftballon (Bild: ballon.com) -->
+                    <div class="experience-card snap-start shrink-0 w-80 sm:w-88 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-200/80 overflow-hidden flex flex-col group transform hover:-translate-y-1.5" data-title="Heißluftballon">
+                        <div class="relative h-52 bg-slate-800 overflow-hidden">
+                            <img src="ballon.com" 
+                                 alt="Heißluftballon" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1507608616759-54f48f0af0ee?auto=format&fit=crop&w=800&q=80';">
+                            <div class="absolute top-3 right-3 bg-navy-900/80 backdrop-blur-md text-gold-400 font-bold text-xs px-3 py-1.5 rounded-full border border-slate-700">
+                                Premium VIP
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-semibold text-gold-600 mb-1 uppercase tracking-wider">Luftabenteuer</div>
+                                <h3 class="font-serif font-bold text-xl text-navy-900 mb-2 group-hover:text-gold-600 transition-colors">Heißluftballon</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                                    Schweben Sie sanft im Sonnenaufgang über malerische Landschaften und genießen Sie ein traditionelles Champagner-Frühstück.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Ab</span>
+                                    <span class="font-bold text-navy-900 text-lg">249 €</span>
+                                </div>
+                                <button onclick="selectExperienceBooking('Heißluftballon')" class="bg-navy-900 hover:bg-gold-500 hover:text-navy-950 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow">
+                                    Buchen <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Karte 2: Rennstrecke (Bild: rennen.com) -->
+                    <div class="experience-card snap-start shrink-0 w-80 sm:w-88 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-200/80 overflow-hidden flex flex-col group transform hover:-translate-y-1.5" data-title="Rennstrecke">
+                        <div class="relative h-52 bg-slate-800 overflow-hidden">
+                            <img src="rennen.com" 
+                                 alt="Rennstrecke" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80';">
+                            <div class="absolute top-3 right-3 bg-navy-900/80 backdrop-blur-md text-gold-400 font-bold text-xs px-3 py-1.5 rounded-full border border-slate-700">
+                                Pure Speed
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-semibold text-gold-600 mb-1 uppercase tracking-wider">Motorsport</div>
+                                <h3 class="font-serif font-bold text-xl text-navy-900 mb-2 group-hover:text-gold-600 transition-colors">Rennstrecke</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                                    Spüren Sie die Beschleunigung echter Supersportwagen an der Seite professioneller Instruktoren auf der Rennstrecke.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Ab</span>
+                                    <span class="font-bold text-navy-900 text-lg">349 €</span>
+                                </div>
+                                <button onclick="selectExperienceBooking('Rennstrecke')" class="bg-navy-900 hover:bg-gold-500 hover:text-navy-950 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow">
+                                    Buchen <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Karte 3: Schnorcheln (Bild: schnorcheln.com) -->
+                    <div class="experience-card snap-start shrink-0 w-80 sm:w-88 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-200/80 overflow-hidden flex flex-col group transform hover:-translate-y-1.5" data-title="Schnorcheln">
+                        <div class="relative h-52 bg-slate-800 overflow-hidden">
+                            <img src="schnorcheln.com" 
+                                 alt="Schnorcheln" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80';">
+                            <div class="absolute top-3 right-3 bg-navy-900/80 backdrop-blur-md text-gold-400 font-bold text-xs px-3 py-1.5 rounded-full border border-slate-700">
+                                Wasserwelt
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-semibold text-gold-600 mb-1 uppercase tracking-wider">Ozean-Erlebnis</div>
+                                <h3 class="font-serif font-bold text-xl text-navy-900 mb-2 group-hover:text-gold-600 transition-colors">Schnorcheln</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                                    Tauchen Sie ein in faszinierende Unterwasserwelten, geleitet von marinen Biologen und zertifizierten Guides.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Ab</span>
+                                    <span class="font-bold text-navy-900 text-lg">129 €</span>
+                                </div>
+                                <button onclick="selectExperienceBooking('Schnorcheln')" class="bg-navy-900 hover:bg-gold-500 hover:text-navy-950 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow">
+                                    Buchen <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Karte 4: Wandern (Bild: wandern.com) -->
+                    <div class="experience-card snap-start shrink-0 w-80 sm:w-88 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-200/80 overflow-hidden flex flex-col group transform hover:-translate-y-1.5" data-title="Wandern">
+                        <div class="relative h-52 bg-slate-800 overflow-hidden">
+                            <img src="wandern.com" 
+                                 alt="Wandern" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80';">
+                            <div class="absolute top-3 right-3 bg-navy-900/80 backdrop-blur-md text-gold-400 font-bold text-xs px-3 py-1.5 rounded-full border border-slate-700">
+                                Natur Pur
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-semibold text-gold-600 mb-1 uppercase tracking-wider">Outdoor</div>
+                                <h3 class="font-serif font-bold text-xl text-navy-900 mb-2 group-hover:text-gold-600 transition-colors">Wandern</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                                    Erklimmen Sie spektakuläre Berggipfel bei einer geführten Panorama-Tour inklusive traditioneller Hütte-Einkehr.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Ab</span>
+                                    <span class="font-bold text-navy-900 text-lg">89 €</span>
+                                </div>
+                                <button onclick="selectExperienceBooking('Wandern')" class="bg-navy-900 hover:bg-gold-500 hover:text-navy-950 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow">
+                                    Buchen <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Karte 5: Helikopter (Bild: helikopter.com) -->
+                    <div class="experience-card snap-start shrink-0 w-80 sm:w-88 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-200/80 overflow-hidden flex flex-col group transform hover:-translate-y-1.5" data-title="Helikopter">
+                        <div class="relative h-52 bg-slate-800 overflow-hidden">
+                            <img src="helikopter.com" 
+                                 alt="Helikopter" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1508614589041-895b88991e3e?auto=format&fit=crop&w=800&q=80';">
+                            <div class="absolute top-3 right-3 bg-navy-900/80 backdrop-blur-md text-gold-400 font-bold text-xs px-3 py-1.5 rounded-full border border-slate-700">
+                                Highlight
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-semibold text-gold-600 mb-1 uppercase tracking-wider">Panorama-Flug</div>
+                                <h3 class="font-serif font-bold text-xl text-navy-900 mb-2 group-hover:text-gold-600 transition-colors">Helikopter</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                                    Erleben Sie atemberaubende Metropolen oder alpine Berglandschaften aus der Vogelperspektive im Luxus-Helikopter.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Ab</span>
+                                    <span class="font-bold text-navy-900 text-lg">429 €</span>
+                                </div>
+                                <button onclick="selectExperienceBooking('Helikopter')" class="bg-navy-900 hover:bg-gold-500 hover:text-navy-950 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow">
+                                    Buchen <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Karte 6: Kreuzfahrtschiff (Bild: kreuzfahrtschiff.com) -->
+                    <div class="experience-card snap-start shrink-0 w-80 sm:w-88 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 border border-slate-200/80 overflow-hidden flex flex-col group transform hover:-translate-y-1.5" data-title="Kreuzfahrtschiff">
+                        <div class="relative h-52 bg-slate-800 overflow-hidden">
+                            <img src="kreuzfahrtschiff.com" 
+                                 alt="Kreuzfahrtschiff" 
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=800&q=80';">
+                            <div class="absolute top-3 right-3 bg-navy-900/80 backdrop-blur-md text-gold-400 font-bold text-xs px-3 py-1.5 rounded-full border border-slate-700">
+                                Luxus pur
+                            </div>
+                        </div>
+                        <div class="p-6 flex-grow flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-semibold text-gold-600 mb-1 uppercase tracking-wider">Exklusive Reise</div>
+                                <h3 class="font-serif font-bold text-xl text-navy-900 mb-2 group-hover:text-gold-600 transition-colors">Kreuzfahrtschiff</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                                    Genießen Sie einen luxuriösen Tages- oder Mehrtagesausflug auf modernen Schiffen inklusive Gourmet-Verpflegung.
+                                </p>
+                            </div>
+                            <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Ab</span>
+                                    <span class="font-bold text-navy-900 text-lg">599 €</span>
+                                </div>
+                                <button onclick="selectExperienceBooking('Kreuzfahrtschiff')" class="bg-navy-900 hover:bg-gold-500 hover:text-navy-950 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition shadow">
+                                    Buchen <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Fallback-Meldung, falls die Live-Suche keine Treffer ergibt -->
+                <div id="noResultsMsg" class="hidden text-center py-12 bg-white rounded-2xl border border-slate-200 shadow-sm max-w-xl mx-auto my-4">
+                    <div class="w-16 h-16 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4 text-2xl">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <h3 class="font-serif font-bold text-xl text-navy-900 mb-1">Kein Erlebnis gefunden</h3>
+                    <p class="text-slate-500 text-sm mb-6">Für Ihre Suchanfrage konnten wir leider keine passenden Erlebnisse finden.</p>
+                    <button onclick="clearSearch()" class="bg-navy-900 hover:bg-navy-800 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition">
+                        Alle Erlebnisse anzeigen
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. PREISE SEKTION (Erreichbar über Sidebar-Link "Preise") -->
+        <section id="preise" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <div class="inline-flex items-center space-x-2 text-gold-600 text-xs font-bold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-circle-dollar-to-slot"></i>
+                        <span>Transparent & Inklusiv</span>
+                    </div>
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-navy-900">Preise & Erlebnis-Pakete</h2>
+                    <p class="text-slate-600 mt-3 text-sm sm:text-base">Keine versteckten Gebühren. Alle Erlebnisse beinhalten unsere AURELIA-Sicherheits- & Servicegarantie.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Standard Paket -->
+                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200 flex flex-col justify-between hover:shadow-xl transition">
+                        <div>
+                            <div class="text-slate-500 text-sm font-semibold mb-2">Entdecker Paket</div>
+                            <div class="font-serif text-4xl font-bold text-navy-900 mb-4">Basis <span class="text-base font-normal text-slate-500">/ Person</span></div>
+                            <p class="text-slate-600 text-sm mb-6 pb-6 border-b border-slate-200">Ideal für spontane Ausflüge und Einsteiger.</p>
+                            <ul class="space-y-3 text-sm text-slate-700 mb-8">
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-emerald-500"></i>
+                                    <span>Geprüfter Partner vor Ort</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-emerald-500"></i>
+                                    <span>Einweisung & Sicherheitsausrüstung</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-emerald-500"></i>
+                                    <span>Digitale Erinnerungsfotos</span>
+                                </li>
+                                <li class="flex items-center space-x-3 text-slate-400">
+                                    <i class="fa-solid fa-xmark"></i>
+                                    <span>Keine VIP-Lounge</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="#buchung" class="w-full bg-slate-200 hover:bg-slate-300 text-navy-900 text-center font-bold py-3 rounded-xl transition">
+                            Paket wählen
+                        </a>
+                    </div>
+
+                    <!-- Premium Paket (Hervorgehoben) -->
+                    <div class="bg-navy-900 rounded-2xl p-8 border-2 border-gold-500 text-white flex flex-col justify-between shadow-2xl relative transform md:-translate-y-3">
+                        <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-gold-500 text-navy-950 text-xs font-extrabold uppercase px-4 py-1 rounded-full shadow-md">
+                            Beliebteste Wahl
+                        </div>
+                        <div>
+                            <div class="text-gold-400 text-sm font-semibold mb-2">Exklusiv Paket</div>
+                            <div class="font-serif text-4xl font-bold text-white mb-4">Premium <span class="text-base font-normal text-slate-400">/ Person</span></div>
+                            <p class="text-slate-300 text-sm mb-6 pb-6 border-b border-slate-800">Das rundum-sorglos Erlebnispaket für besondere Anlässe.</p>
+                            <ul class="space-y-3 text-sm text-slate-200 mb-8">
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-gold-400"></i>
+                                    <span>Inklusive aller Basis-Leistungen</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-gold-400"></i>
+                                    <span>Priorisierte Terminvergabe</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-gold-400"></i>
+                                    <span>Willkommens-Drink & Snack</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-gold-400"></i>
+                                    <span>Kostenlose Umbuchung bis 48h</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="#buchung" class="w-full bg-gradient-to-r from-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-navy-950 text-center font-bold py-3.5 rounded-xl shadow-lg transition">
+                            Jetzt Premium Buchen
+                        </a>
+                    </div>
+
+                    <!-- VIP Paket -->
+                    <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200 flex flex-col justify-between hover:shadow-xl transition">
+                        <div>
+                            <div class="text-slate-500 text-sm font-semibold mb-2">Luxus Paket</div>
+                            <div class="font-serif text-4xl font-bold text-navy-900 mb-4">Deluxe <span class="text-base font-normal text-slate-500">/ Gruppe</span></div>
+                            <p class="text-slate-600 text-sm mb-6 pb-6 border-b border-slate-200">Für unvergessliche Momente im privaten Kreis.</p>
+                            <ul class="space-y-3 text-sm text-slate-700 mb-8">
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-emerald-500"></i>
+                                    <span>Privater Shuttle-Service</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-emerald-500"></i>
+                                    <span>Exklusiver Guide nur für Sie</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-emerald-500"></i>
+                                    <span>Gourmet-Catering & Champagne</span>
+                                </li>
+                                <li class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-check text-emerald-500"></i>
+                                    <span>Professionelles Video-Set</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <a href="#buchung" class="w-full bg-slate-200 hover:bg-slate-300 text-navy-900 text-center font-bold py-3 rounded-xl transition">
+                            Paket anfragen
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. JETZT BUCHEN SEKTION (Erreichbar über Sidebar-Link "Jetzt buchen") -->
+        <section id="buchung" class="py-20 bg-slate-900 text-white relative">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="bg-slate-800/90 rounded-3xl p-8 sm:p-12 border border-slate-700/80 shadow-2xl backdrop-blur-xl">
+                    <div class="text-center max-w-xl mx-auto mb-10">
+                        <span class="text-gold-400 font-semibold text-xs uppercase tracking-widest block mb-2">Unverbindlich & Einfach</span>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-white">Jetzt Erlebnis Buchen</h2>
+                        <p class="text-slate-300 text-sm mt-2">Wählen Sie Ihr Wunscherlebnis und sichern Sie sich Ihren bevorzugten Termin.</p>
+                    </div>
+
+                    <form id="bookingForm" onsubmit="handleBookingSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Erlebnis-Auswahl -->
+                            <div>
+                                <label for="bookingExperience" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Erlebnis auswählen</label>
+                                <select id="bookingExperience" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition text-sm">
+                                    <option value="" disabled selected>Bitte wählen...</option>
+                                    <option value="Heißluftballon">Heißluftballon</option>
+                                    <option value="Rennstrecke">Rennstrecke</option>
+                                    <option value="Schnorcheln">Schnorcheln</option>
+                                    <option value="Wandern">Wandern</option>
+                                    <option value="Helikopter">Helikopter</option>
+                                    <option value="Kreuzfahrtschiff">Kreuzfahrtschiff</option>
+                                </select>
+                            </div>
+
+                            <!-- Wunschdatum -->
+                            <div>
+                                <label for="bookingDate" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Wunschdatum</label>
+                                <input type="date" id="bookingDate" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Name -->
+                            <div>
+                                <label for="bookingName" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Vollständiger Name</label>
+                                <input type="text" id="bookingName" placeholder="Max Mustermann" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition text-sm">
+                            </div>
+
+                            <!-- E-Mail -->
+                            <div>
+                                <label for="bookingEmail" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">E-Mail-Adresse</label>
+                                <input type="email" id="bookingEmail" placeholder="max@beispiel.de" required class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Anmerkungen -->
+                        <div>
+                            <label for="bookingNotes" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Besondere Wünsche (Optional)</label>
+                            <textarea id="bookingNotes" rows="3" placeholder="z. B. Gutschein-Wunsch, Allergien oder besondere Anlässe..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition text-sm"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="w-full bg-gradient-to-r from-gold-500 via-gold-500 to-gold-600 hover:from-gold-600 hover:to-gold-700 text-navy-950 font-bold py-4 rounded-xl shadow-xl transition transform hover:-translate-y-0.5 text-base flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Jetzt Anfragen & Reservieren</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. KUNDENBEWERTUNGEN (Stil von modernen Sprechblasen) -->
+        <section id="bewertungen" class="py-20 bg-slate-100/80">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-16">
+                    <div class="inline-flex items-center space-x-2 text-gold-600 text-xs font-bold uppercase tracking-wider mb-2">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>Echte Erfahrungen</span>
+                    </div>
+                    <h2 class="font-serif text-3xl sm:text-4xl font-bold text-navy-900">Was unsere Gäste sagen</h2>
+                    <p class="text-slate-600 mt-2 text-sm sm:text-base">Lesen Sie Berichte von Kunden, die bereits unvergessliche Augenblicke mit AURELIA erlebt haben.</p>
+                </div>
+
+                <!-- Raster mit Sprechblasen-Karten -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+                    
+                    <!-- Bewertung 1 (Sprechblase) -->
+                    <div class="flex flex-col">
+                        <!-- Sprechblase -->
+                        <div class="speech-bubble bg-white p-7 rounded-2xl shadow-md border border-slate-200/90 mb-6 flex-grow">
+                            <div class="flex items-center space-x-1 text-gold-500 mb-3 text-sm">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-slate-700 text-sm leading-relaxed italic">
+                                „Die Heißluftballonfahrt über die verschneiten Alpen war schlichtweg atemberaubend. Die Organisation von AURELIA war makellos – vom Empfang bis zur Champagner-Taufe. Ein absoluter Traum!“
+                            </p>
+                        </div>
+                        <!-- Autor-Info unterhalb der Sprechblase -->
+                        <div class="flex items-center space-x-4 pl-4">
+                            <div class="w-12 h-12 rounded-full bg-navy-900 text-gold-400 font-bold flex items-center justify-center font-serif text-lg shadow-sm border border-slate-700">
+                                TM
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-navy-900 text-sm">Dr. Thomas Meyer</h4>
+                                <span class="text-xs text-slate-500">Gebucht: Heißluftballon • Oktober 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bewertung 2 (Sprechblase) -->
+                    <div class="flex flex-col">
+                        <!-- Sprechblase -->
+                        <div class="speech-bubble bg-white p-7 rounded-2xl shadow-md border border-slate-200/90 mb-6 flex-grow">
+                            <div class="flex items-center space-x-1 text-gold-500 mb-3 text-sm">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-slate-700 text-sm leading-relaxed italic">
+                                „Adrenalin pur! Mein Mann hat das Rennstrecken-Training zum Geburtstag bekommen. Die Instruktoren waren extrem hochkarätig und freundlich. Besser hätte es nicht sein können!“
+                            </p>
+                        </div>
+                        <!-- Autor-Info unterhalb der Sprechblase -->
+                        <div class="flex items-center space-x-4 pl-4">
+                            <div class="w-12 h-12 rounded-full bg-gold-600 text-navy-950 font-bold flex items-center justify-center font-serif text-lg shadow-sm">
+                                LS
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-navy-900 text-sm">Laura & Marc Schneider</h4>
+                                <span class="text-xs text-slate-500">Gebucht: Rennstrecke • September 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bewertung 3 (Sprechblase) -->
+                    <div class="flex flex-col">
+                        <!-- Sprechblase -->
+                        <div class="speech-bubble bg-white p-7 rounded-2xl shadow-md border border-slate-200/90 mb-6 flex-grow">
+                            <div class="flex items-center space-x-1 text-gold-500 mb-3 text-sm">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-slate-700 text-sm leading-relaxed italic">
+                                „Der Helikopter-Rundflug war ein Highlight unseres Jahres. Wir haben die Stadt noch nie aus so einer faszinierenden Perspektive gesehen. Top Betreuung und höchste Sicherheit!“
+                            </p>
+                        </div>
+                        <!-- Autor-Info unterhalb der Sprechblase -->
+                        <div class="flex items-center space-x-4 pl-4">
+                            <div class="w-12 h-12 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center font-serif text-lg shadow-sm">
+                                SB
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-navy-900 text-sm">Sophie Becker</h4>
+                                <span class="text-xs text-slate-500">Gebucht: Helikopter • August 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bewertung 4 (Sprechblase) -->
+                    <div class="flex flex-col">
+                        <!-- Sprechblase -->
+                        <div class="speech-bubble bg-white p-7 rounded-2xl shadow-md border border-slate-200/90 mb-6 flex-grow">
+                            <div class="flex items-center space-x-1 text-gold-500 mb-3 text-sm">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                            </div>
+                            <p class="text-slate-700 text-sm leading-relaxed italic">
+                                „Die VIP-Kreuzfahrt hat all unsere Erwartungen übertroffen. Gourmet-Essen, exzellente Crew und wunderbare Buchungsabwicklung. Danke an das gesamte AURELIA-Team!“
+                            </p>
+                        </div>
+                        <!-- Autor-Info unterhalb der Sprechblase -->
+                        <div class="flex items-center space-x-4 pl-4">
+                            <div class="w-12 h-12 rounded-full bg-navy-950 text-gold-400 font-bold flex items-center justify-center font-serif text-lg shadow-sm">
+                                MK
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-navy-900 text-sm">Michael Krüger</h4>
+                                <span class="text-xs text-slate-500">Gebucht: Kreuzfahrtschiff • Juli 2026</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. KONTAKT SEKTION (Erreichbar über Sidebar-Link "Kontakt") -->
+        <section id="kontakt" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 text-gold-600 text-xs font-bold uppercase tracking-wider mb-2">
+                            <i class="fa-solid fa-headset"></i>
+                            <span>Persönlich für Sie da</span>
+                        </div>
+                        <h2 class="font-serif text-3xl sm:text-4xl font-bold text-navy-900 mb-4">Haben Sie Fragen oder spezielle Wünsche?</h2>
+                        <p class="text-slate-600 leading-relaxed mb-8 text-sm sm:text-base">
+                            Unsere Erlebnis-Berater stehen Ihnen jederzeit zur Verfügung. Ganz gleich, ob Sie ein maßgeschneidertes Event planen oder Fragen zu den Gutscheinen haben.
+                        </p>
+
+                        <div class="space-y-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-600 flex items-center justify-center text-xl shrink-0 mt-1">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-navy-900 text-base">Hauptsitz</h3>
+                                    <p class="text-slate-600 text-sm">AURELIA Erlebnisse GmbH<br>Maximilianstraße 45, 80539 München</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-600 flex items-center justify-center text-xl shrink-0 mt-1">
+                                    <i class="fa-solid fa-phone"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-navy-900 text-base">Telefon-Hotline</h3>
+                                    <p class="text-slate-600 text-sm">+49 (0) 89 123 456 789<br><span class="text-xs text-slate-400">Mo–Fr: 09:00 – 18:00 Uhr</span></p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 rounded-xl bg-gold-500/10 text-gold-600 flex items-center justify-center text-xl shrink-0 mt-1">
+                                    <i class="fa-solid fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-navy-900 text-base">E-Mail</h3>
+                                    <p class="text-slate-600 text-sm">service@aurelia-erlebnisse.de</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Kontakt-Formular Card -->
+                    <div class="bg-slate-50 p-8 rounded-3xl border border-slate-200 shadow-lg">
+                        <h3 class="font-serif font-bold text-xl text-navy-900 mb-6">Direktnachricht senden</h3>
+                        <form onsubmit="handleContactSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Ihr Name</label>
+                                <input type="text" required placeholder="Ihr Name" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">E-Mail-Adresse</label>
+                                <input type="email" required placeholder="Ihre E-Mail" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nachricht</label>
+                                <textarea rows="4" required placeholder="Wie können wir Ihnen helfen?" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-gold-500"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-3 rounded-xl transition shadow">
+                                Nachricht absenden
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- FOOTER (Fußzeile mit geforderten Angaben) -->
+    <footer class="bg-navy-950 text-white border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <!-- Spalte 1: Unternehmens-Info -->
+                <div class="md:col-span-2">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-gold-600 to-gold-400 flex items-center justify-center text-navy-950 font-serif font-bold text-lg shadow-md">
+                            A
+                        </div>
+                        <span class="font-serif font-bold text-xl tracking-wider text-white">AURELIA Erlebnisse</span>
+                    </div>
+                    <p class="text-slate-400 text-sm leading-relaxed max-w-sm mb-6">
+                        Ihr Premium-Anbieter für unvergessliche Erlebnisse, Abenteuer und Luxus-Momente in ganz Europa.
+                    </p>
+                    <div class="flex space-x-3 text-slate-400">
+                        <a href="#" class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-gold-500 hover:text-navy-950 transition"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-gold-500 hover:text-navy-950 transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center hover:bg-gold-500 hover:text-navy-950 transition"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <!-- Spalte 2: Links -->
+                <div>
+                    <h3 class="font-semibold text-sm text-gold-400 uppercase tracking-wider mb-4">Erlebnisse</h3>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#galerie" onclick="filterByTitle('Heißluftballon')" class="hover:text-white transition">Heißluftballon</a></li>
+                        <li><a href="#galerie" onclick="filterByTitle('Rennstrecke')" class="hover:text-white transition">Rennstrecke</a></li>
+                        <li><a href="#galerie" onclick="filterByTitle('Schnorcheln')" class="hover:text-white transition">Schnorcheln</a></li>
+                        <li><a href="#galerie" onclick="filterByTitle('Wandern')" class="hover:text-white transition">Wandern</a></li>
+                        <li><a href="#galerie" onclick="filterByTitle('Helikopter')" class="hover:text-white transition">Helikopter</a></li>
+                        <li><a href="#galerie" onclick="filterByTitle('Kreuzfahrtschiff')" class="hover:text-white transition">Kreuzfahrtschiff</a></li>
+                    </ul>
+                </div>
+
+                <!-- Spalte 3: Rechtliches -->
+                <div>
+                    <h3 class="font-semibold text-sm text-gold-400 uppercase tracking-wider mb-4">Informationen</h3>
+                    <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="#preise" class="hover:text-white transition">Preise & Pakete</a></li>
+                        <li><a href="#buchung" class="hover:text-white transition">Gutschein einlösen</a></li>
+                        <li><a href="#kontakt" class="hover:text-white transition">Hilfe & FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition">Impressum</a></li>
+                        <li><a href="#" class="hover:text-white transition">Datenschutz</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- UNTERER FOOTER-BEREICH (Exakt nach Anforderung: "Programmiert von MR Websites" & Platzhalter-Logo logo.com) -->
+            <div class="pt-8 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+                <p>© 2026 AURELIA Erlebnisse. Alle Rechte vorbehalten.</p>
+
+                <!-- EXAKT GEFORDERTES DESIGN FÜR DEN DEVELOPER CREDIT & DAS LOGO LOGO.COM -->
+                <div class="flex items-center space-x-2 bg-slate-900/90 px-4 py-2 rounded-xl border border-slate-800">
+                    <span>Programmiert von MR Websites</span>
+                    <!-- Gefordertes Logo mit Src logo.com & sauberem Fallback für Vorschau-Stabilität -->
+                    <img src="logo.com" 
+                         alt="MR Websites Logo" 
+                         class="h-6 w-auto inline-block align-middle ml-1 rounded" 
+                         onerror="this.onerror=null; this.src='https://placehold.co/120x35/0f172a/f59e0b?text=MR+Websites';">
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- SUCCESS NOTIFICATION MODAL -->
+    <div id="notificationModal" class="fixed inset-0 bg-navy-950/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl border border-slate-100 transform transition-all">
+            <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 id="modalTitle" class="font-serif font-bold text-2xl text-navy-900 mb-2">Buchung angefragt!</h3>
+            <p id="modalMessage" class="text-slate-600 text-sm mb-6 leading-relaxed">
+                Vielen Dank! Ihre Reservierung wurde erfolgreich übermittelt. Unser Team meldet sich innerhalb von 24 Stunden bei Ihnen.
+            </p>
+            <button onclick="closeModal()" class="w-full bg-navy-900 hover:bg-navy-800 text-white font-bold py-3 rounded-xl transition">
+                Verstanden
+            </button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ERWEITERTE INTERAKTIVITÄT & LIVE-SUCHE -->
+    <script>
+        // 1. SIDEBAR TOGGLE & NAVIGATION
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                // Fokus auf Suchfeld legen
+                setTimeout(() => {
+                    document.getElementById('sidebarSearch').focus();
+                }, 150);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function closeSidebarOnMobile() {
+            if (window.innerWidth < 1024) {
+                const sidebar = document.getElementById('sidebar');
+                const overlay = document.getElementById('sidebarOverlay');
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // 2. LIVE-SUCHE UND ECHTZEIT-FILTERUNG (Exakt nach Anforderung)
+        function filterExperiences() {
+            const searchInput = document.getElementById('sidebarSearch');
+            const query = searchInput.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.experience-card');
+            const noResults = document.getElementById('noResultsMsg');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            const searchCount = document.getElementById('searchCount');
+            const matchCountSpan = document.getElementById('matchCount');
+            const activeFilterBadge = document.getElementById('activeFilterBadge');
+            const filterQueryText = document.getElementById('filterQueryText');
+
+            let visibleCount = 0;
+
+            if (query.length > 0) {
+                clearBtn.classList.remove('hidden');
+                searchCount.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+                searchCount.classList.add('hidden');
+                activeFilterBadge.classList.add('hidden');
+            }
+
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title').toLowerCase();
+                const cardText = card.innerText.toLowerCase();
+
+                if (title.includes(query) || cardText.includes(query)) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            matchCountSpan.innerText = visibleCount;
+
+            if (query.length > 0) {
+                activeFilterBadge.classList.remove('hidden');
+                activeFilterBadge.classList.add('flex');
+                filterQueryText.innerText = `"${query}"`;
+            }
+
+            if (visibleCount === 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('sidebarSearch');
+            searchInput.value = '';
+            filterExperiences();
+        }
+
+        function filterByTitle(title) {
+            const searchInput = document.getElementById('sidebarSearch');
+            searchInput.value = title;
+            filterExperiences();
+            closeSidebarOnMobile();
+        }
+
+        // 3. HORIZONTALE GALERIE SCROLL-STEUERUNG
+        function scrollGallery(amount) {
+            const container = document.getElementById('galleryContainer');
+            container.scrollBy({
+                left: amount,
+                behavior: 'smooth'
+            });
+        }
+
+        // 4. SCHNELL-SELEKTION AUS GALERIE IN DAS BUCHUNGSFORMULAR
+        function selectExperienceBooking(expTitle) {
+            const selectElem = document.getElementById('bookingExperience');
+            if (selectElem) {
+                selectElem.value = expTitle;
+            }
+            // Sanft zum Buchungsbereich scrollen
+            const buchungSection = document.getElementById('buchung');
+            if (buchungSection) {
+                buchungSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // 5. FORMULARVERARBEITUNG & MODAL FEEDBACK
+        function handleBookingSubmit(event) {
+            event.preventDefault();
+            const exp = document.getElementById('bookingExperience').value;
+            const name = document.getElementById('bookingName').value;
+
+            document.getElementById('modalTitle').innerText = 'Buchungsanfrage erhalten!';
+            document.getElementById('modalMessage').innerHTML = `Vielen Dank, <strong>${name}</strong>! Ihre Anfrage für das Erlebnis <strong>${exp}</strong> wurde erfolgreich übermittelt. Wir senden Ihnen in Kürze eine Bestätigung zu.`;
+            
+            showModal();
+            document.getElementById('bookingForm').reset();
+        }
+
+        function handleContactSubmit(event) {
+            event.preventDefault();
+            document.getElementById('modalTitle').innerText = 'Nachricht gesendet!';
+            document.getElementById('modalMessage').innerText = 'Vielen Dank für Ihre Kontaktaufnahme. Unser Team wird Ihre Anfrage zeitnah bearbeiten.';
+            showModal();
+            event.target.reset();
+        }
+
+        function showModal() {
+            const modal = document.getElementById('notificationModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('notificationModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Datum im Formular auf mindestens heute setzen
+        document.addEventListener('DOMContentLoaded', () => {
+            const dateInput = document.getElementById('bookingDate');
+            if (dateInput) {
+                const today = new Date().toISOString().split('T')[0];
+                dateInput.setAttribute('min', today);
+                dateInput.value = today;
+            }
+        });
+    </script>
+</body>
+</html>
