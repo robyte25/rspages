@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Happy Birthday!</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Lobster&family=Pacifico&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #FF9A9E, #FAD0C4);
+            color: #FFFFFF;
+            font-family: 'Montserrat', sans-serif;
+            padding: 2rem;
+            text-align: center;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-family: 'Lobster', cursive;
+            font-size: 4rem;
+            color: #FFD700;
+            text-shadow: 2px 2px 8px #FF8C00, 0 0 10px #FFFACD;
+            animation: shimmer 3s infinite linear;
+        }
+
+        h3 {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            margin: 0.5rem 0;
+            color: #FFFAF0;
+            text-shadow: 1px 1px 5px #FFA500;
+        }
+
+        h2 {
+            font-family: 'Pacifico', cursive;
+            font-size: 2.2rem;
+            color: #FFDAB9;
+            margin-top: 2rem;
+            text-decoration: underline;
+            text-shadow: 1px 1px 6px #FF8C00;
+        }
+
+        button {
+            background-color: #FFA500;
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1.4rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: 'Montserrat', sans-serif;
+            box-shadow: 0 0 15px #FFD700;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #FF8C00;
+            transform: scale(1.1);
+            box-shadow: 0 0 25px #FFD700;
+        }
+
+        img {
+            border-radius: 15px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 20px #FFD700;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Glitzer-Animation für H1 */
+        @keyframes shimmer {
+            0% { text-shadow: 2px 2px 8px #FF8C00, 0 0 10px #FFFACD; }
+            50% { text-shadow: 2px 2px 12px #FFD700, 0 0 15px #FFFACD; }
+            100% { text-shadow: 2px 2px 8px #FF8C00, 0 0 10px #FFFACD; }
+        }
+
+        /* Leichtes Schweben für das Bild */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Alles Gute zum Geburtstag!</h1>
+    
+    <h3>Liebe Sibylle!</h3>
+    <h3>Wir wünschen dir alles Glück der Welt,</h3>
+    <h3>Gesundheit, Freude und unvergessliche Momente!</h3>
+    
+    <h2>Bleib so , wie du bist!</h2>
+    
+    <img src="p2.jpg" width="250" alt="Foto von Sibylle">
+    
+    
+</body>
+</html>
